@@ -1,0 +1,1087 @@
+﻿<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>InceptaScript Parser — Упрощение разработки на Python</title>
+    <style>
+        :root {
+            --bg-primary: #121214;
+            --bg-secondary: #1a1a1e;
+            --bg-card: #222228;
+            --accent: #00d26a;
+            --accent-hover: #00b057;
+            --text-main: #f0f0f3;
+            --text-muted: #9e9ea6;
+            --border: #32323a;
+            --transition-speed: 0.3s;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            scroll-behavior: smooth;
+        }
+
+        body {
+            background-color: var(--bg-primary);
+            color: var(--text-main);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            background-color: rgba(18, 18, 20, 0.9);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 5%;
+            z-index: 1000;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text-main);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+        }
+
+        .logo span {
+            color: var(--accent);
+        }
+
+        nav ul {
+            display: flex;
+            list-style: none;
+            gap: 1.5rem;
+        }
+
+        nav a, .tab-btn {
+            text-decoration: none;
+            color: var(--text-muted);
+            font-weight: 500;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            border: 1px solid transparent;
+            background: transparent;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all var(--transition-speed) ease;
+        }
+
+        nav a:hover, .tab-btn:hover, .tab-btn.active {
+            color: var(--accent);
+            background-color: var(--bg-card);
+            border-color: var(--border);
+            transform: translateY(-2px);
+        }
+
+        nav a:active, .tab-btn:active {
+            transform: translateY(0);
+        }
+
+        .page-view {
+            display: none;
+            animation: fadeIn 0.4s ease-out;
+        }
+
+        .page-view.active {
+            display: block;
+        }
+
+        .hero {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 0 1rem;
+            background: radial-gradient(circle at center, #25252d 0%, var(--bg-primary) 70%);
+        }
+
+        .hero h1 {
+            font-size: 3.5rem;
+            margin-bottom: 1rem;
+            color: var(--text-main);
+            animation: fadeInDown 1s ease-out;
+        }
+
+        .hero h1 span {
+            color: var(--accent);
+        }
+
+        .hero p {
+            font-size: 1.2rem;
+            color: var(--text-muted);
+            max-width: 650px;
+            margin-bottom: 2rem;
+            animation: fadeInUp 1s ease-out 0.3s both;
+        }
+
+        .hero-buttons {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .cta-btn {
+            background-color: var(--accent);
+            color: var(--bg-primary);
+            padding: 0.9rem 2.2rem;
+            font-size: 1.1rem;
+            font-weight: 700;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all var(--transition-speed) ease;
+            animation: pulseGlow 3s infinite ease-in-out;
+            display: inline-block;
+        }
+
+        .cta-btn:hover {
+            background-color: var(--accent-hover);
+            transform: scale(1.05);
+            box-shadow: 0 0 20px rgba(0, 210, 106, 0.4);
+        }
+
+        .secondary-btn {
+            background-color: var(--bg-card);
+            color: var(--text-main);
+            border: 1px solid var(--border);
+            padding: 0.9rem 2.2rem;
+            font-size: 1.1rem;
+            font-weight: 600;
+            border-radius: 6px;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all var(--transition-speed) ease;
+            display: inline-block;
+        }
+
+        .secondary-btn:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+            transform: scale(1.05);
+        }
+
+        .hero-badge {
+            margin-top: 3rem;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            padding: 0.5rem 1.5rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            animation: floatBadge 4s infinite ease-in-out;
+        }
+
+        section {
+            padding: 6rem 10% 4rem 10%;
+        }
+
+        .section-title {
+            text-align: center;
+            font-size: 2.5rem;
+            margin-bottom: 3rem;
+            color: var(--text-main);
+        }
+
+        .section-title span {
+            color: var(--accent);
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+
+        .card {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            overflow: hidden;
+            transition: transform var(--transition-speed) ease, box-shadow var(--transition-speed) ease, border-color var(--transition-speed) ease;
+        }
+
+        .card:hover {
+            transform: translateY(-8px);
+            border-color: var(--accent);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        }
+
+        .card-img-wrapper {
+            width: 100%;
+            height: 200px;
+            overflow: hidden;
+            background-color: var(--bg-secondary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .card-img-wrapper img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            filter: grayscale(80%) blur(1px);
+            transition: transform 0.5s ease, filter 0.5s ease;
+        }
+
+        .card:hover .card-img-wrapper img {
+            transform: scale(1.1);
+            filter: grayscale(0%) blur(0);
+        }
+
+        .card-content {
+            padding: 1.5rem;
+        }
+
+        .card-content h3 {
+            font-size: 1.3rem;
+            margin-bottom: 0.8rem;
+            color: var(--text-main);
+        }
+
+        .card-content p {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+        }
+
+        .docs-container {
+            padding-top: 7rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .docs-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 3rem;
+        }
+
+        .doc-card {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border);
+            padding: 1.5rem;
+            border-radius: 6px;
+        }
+
+        .doc-card h4 {
+            color: var(--accent);
+            margin-bottom: 0.8rem;
+            font-size: 1.1rem;
+        }
+
+        .doc-card p, .doc-card ul {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .terminal-box {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 2rem;
+            margin-bottom: 3rem;
+        }
+
+        .terminal-code {
+            background-color: var(--bg-primary);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 1rem;
+            font-family: 'Courier New', Courier, monospace;
+            color: #ffcc00;
+            font-size: 0.9rem;
+            overflow-x: auto;
+            margin-top: 0.8rem;
+            margin-bottom: 1rem;
+            white-space: pre-wrap;
+            word-break: break-all;
+        }
+
+        .sandbox-section {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 2rem;
+            margin-bottom: 4rem;
+        }
+
+        .sandbox-pane {
+            display: flex;
+            flex-direction: column;
+            gap: 0.8rem;
+            margin-top: 1rem;
+        }
+
+        .sandbox-pane label {
+            font-size: 0.95rem;
+            color: var(--text-muted);
+            font-weight: 600;
+        }
+
+        .sandbox-textarea {
+            width: 100%;
+            height: 250px;
+            background-color: var(--bg-primary);
+            color: var(--accent);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 1rem;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.9rem;
+            resize: vertical;
+            line-height: 1.4;
+        }
+
+        .sandbox-textarea:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+
+        .sandbox-controls {
+            margin-top: 1rem;
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .sandbox-canvas-container {
+            margin-top: 2rem;
+            background-color: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 1.5rem;
+            text-align: center;
+        }
+
+        #sandboxCanvas {
+            background-color: #000;
+            border: 2px solid var(--border);
+            border-radius: 4px;
+            max-width: 100%;
+            display: block;
+            margin: 1rem auto 0 auto;
+            outline: none;
+            cursor: pointer;
+        }
+
+        #sandboxCanvas:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 15px rgba(0, 210, 106, 0.4);
+        }
+
+        .contact-container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: var(--bg-card);
+            border: 1px solid var(--border);
+            padding: 2.5rem;
+            border-radius: 8px;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 0.8rem 1rem;
+            background-color: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            color: var(--text-main);
+            font-size: 1rem;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+
+        footer {
+            background-color: var(--bg-secondary);
+            border-top: 1px solid var(--border);
+            text-align: center;
+            padding: 2rem;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            margin-top: 4rem;
+        }
+
+        @keyframes fadeInDown {
+            from { opacity: 0; transform: translateY(-30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes pulseGlow {
+            0% { box-shadow: 0 0 0 0 rgba(0, 210, 106, 0.4); }
+            70% { box-shadow: 0 0 0 12px rgba(0, 210, 106, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(0, 210, 106, 0); }
+        }
+
+        @keyframes floatBadge {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-8px); }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <a class="logo" onclick="switchTab('home')">Incepta<span>Parser</span></a>
+        <nav>
+            <ul>
+                <li><button class="tab-btn active" onclick="switchTab('home')">Главная</button></li>
+                <li><button class="tab-btn" onclick="switchTab('docs')">Справочник и скачка</button></li>
+                <li><a href="#contact" onclick="switchTab('home')">Контакты</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <div id="home-view" class="page-view active">
+        <section class="hero">
+            <h1>Упрощайте написание логики с <span>InceptaParser</span></h1>
+            <p>Мощный инструмент трансляции пользовательского скрипта прямо в оптимизированный Python/Tkinter код для быстрой разработки приложений.</p>
+            <div class="hero-buttons">
+                <button class="cta-btn" onclick="switchTab('docs')">Скачать парсер</button>
+                <a href="#features" class="secondary-btn">Узнать больше</a>
+            </div>
+            <div class="hero-badge">⚡ Полностью автономный скрипт трансляции команд</div>
+        </section>
+
+        <section id="features">
+            <h2 class="section-title">Возможности <span>парсера</span></h2>
+            <div class="features-grid">
+                <div class="card">
+                    <div class="card-img-wrapper">
+                        <img src="https://images.unsplash.com/photo-1555066931-4365d14bab8c?auto=format&fit=crop&w=600&q=80" alt="Трансляция">
+                    </div>
+                    <div class="card-content">
+                        <h3>Быстрый синтаксис</h3>
+                        <p>Интуитивные команды для создания графических примитивов, настройки экрана и циклов без лишнего бойлерплейта.</p>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-img-wrapper">
+                        <img src="https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?auto=format&fit=crop&w=600&q=80" alt="Парсер кода">
+                    </div>
+                    <div class="card-content">
+                        <h3>Аргументы CLI</h3>
+                        <p>Удобный запуск через терминал с поддержкой путей ввода файлов и флагов автоматического запуска результирующего скрипта.</p>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-img-wrapper">
+                        <img src="https://images.unsplash.com/photo-1618401471353-b98aedd04e11?auto=format&fit=crop&w=600&q=80" alt="Сохранение">
+                    </div>
+                    <div class="card-content">
+                        <h3>Двойной вывод</h3>
+                        <p>Парсер автоматически сохраняет готовый код как в исполняемый `.py` файл, так и в удобный `.txt` формат для отладки.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="contact">
+            <h2 class="section-title">Связаться с <span>разработчиком</span></h2>
+            <div class="contact-container">
+                <form id="feedbackForm">
+                    <div class="form-group">
+                        <label for="name">Ваше имя</label>
+                        <input type="text" id="name" class="form-control" placeholder="Введите имя" required minlength="2">
+                    </div>
+                    <div class="form-group">
+                        <label for="email">Электронная почта</label>
+                        <input type="email" id="email" class="form-control" placeholder="name@example.com" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="message">Сообщение / Отзыв о парсере</label>
+                        <textarea id="message" class="form-control" rows="4" placeholder="Отличный инструмент..." required></textarea>
+                    </div>
+                    <button type="submit" class="cta-btn" style="width: 100%; border-radius: 4px;" id="submitBtn">Отправить запрос</button>
+                </form>
+            </div>
+        </section>
+    </div>
+
+    <div id="docs-view" class="page-view">
+        <div class="docs-container">
+            <h2 class="section-title">Справочник и <span>скачивание</span></h2>
+            <p style="text-align: center; color: var(--text-muted); margin-bottom: 2rem;">Загрузите исходный код обновленного парсера или изучите документацию по командам.</p>
+            
+            <div style="text-align: center; margin-bottom: 3rem;">
+                <button class="cta-btn" onclick="downloadParserFile()" style="font-size: 1.2rem; padding: 1rem 2.5rem;">📥 Скачать парсер (incepta_parser.py)</button>
+            </div>
+
+            <div class="sandbox-section">
+                <h3 style="color: var(--text-main); margin-bottom: 0.5rem;">💻 Онлайн-песочница: Тестирование языка</h3>
+                <p style="color: var(--text-muted); font-size: 0.95rem;">Введите код на InceptaScript. После нажатия запуска управление стрелочками и WASD активируется на холсте автоматически!</p>
+                
+                <div class="sandbox-pane">
+                    <label for="sandboxInput">Код на InceptaScript:</label>
+                    <textarea id="sandboxInput" class="sandbox-textarea">screen(600, 400)
+background blue
+create player is green rect(40, 40) at 100, 150
+
+infinity:
+    if key_down(K.right):
+        player.move(4, 0)
+    elif key_down(K.left):
+        player.move(-4, 0)
+    elif key_down(K.up):
+        player.move(0, -4)
+    elif key_down(K.down):
+        player.move(0, 4)
+endinfinity</textarea>
+                </div>
+
+                <div class="sandbox-controls">
+                    <button class="cta-btn" onclick="runSandbox()" style="padding: 0.7rem 1.5rem; font-size: 1rem;">▶ Запустить симуляцию</button>
+                </div>
+
+                <div class="sandbox-canvas-container">
+                    <h4 style="color: var(--text-main); font-size: 1rem; margin-bottom: 0.5rem;">Экран симуляции</h4>
+                    <canvas id="sandboxCanvas" width="600" height="400" tabindex="1"></canvas>
+                </div>
+            </div>
+
+            <div class="terminal-box">
+                <h3 style="color: var(--text-main); margin-bottom: 0.5rem;">🚀 Способ запуска парсера через терминал</h3>
+                <div class="terminal-code">python C:\путь_к_файлу\incepta_parser.py C:\путь_к_файлу\inc.txt --run</div>
+            </div>
+
+            <div class="docs-grid">
+                <div class="doc-card">
+                    <h4>1. Настройка экрана</h4>
+                    <code style="color: var(--accent);">screen(800, 600)</code>
+                </div>
+                <div class="doc-card">
+                    <h4>2. Цвет фона</h4>
+                    <code style="color: var(--accent);">background blue</code>
+                </div>
+                <div class="doc-card">
+                    <h4>3. Создание объектов</h4>
+                    <code style="color: var(--accent);">create player is green rect(40, 40) at 100, 200</code>
+                </div>
+                <div class="doc-card">
+                    <h4>4. Цикл анимации</h4>
+                    <code style="color: var(--accent);">infinity:<br>&nbsp;&nbsp;&nbsp;&nbsp;player.move(5, 0)<br>endinfinity</code>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <p>&copy; 2026 InceptaParser. Все права защищены.</p>
+    </footer>
+
+    <script>
+        function switchTab(tabName) {
+            const homeView = document.getElementById('home-view');
+            const docsView = document.getElementById('docs-view');
+            const buttons = document.querySelectorAll('.tab-btn');
+
+            buttons.forEach(btn => btn.classList.remove('active'));
+
+            if (tabName === 'home') {
+                homeView.classList.add('active');
+                docsView.classList.remove('active');
+                buttons[0].classList.add('active');
+                window.scrollTo(0, 0);
+            } else if (tabName === 'docs') {
+                docsView.classList.add('active');
+                homeView.classList.remove('active');
+                buttons[1].classList.add('active');
+                window.scrollTo(0, 0);
+            }
+        }
+
+        let sandboxAnimId = null;
+        let sandboxKeys = {};
+        let sandboxObjects = {};
+        let sandboxBgColor = "#000000";
+
+        const canvasElement = document.getElementById('sandboxCanvas');
+        
+        // Отслеживаем нажатия клавиш строго на холсте
+        canvasElement.addEventListener('keydown', (e) => {
+            let key = e.key.toLowerCase();
+            sandboxKeys[key] = true;
+            sandboxKeys[e.code.toLowerCase()] = true;
+            if (e.key === "ArrowLeft") sandboxKeys['left'] = true;
+            if (e.key === "ArrowRight") sandboxKeys['right'] = true;
+            if (e.key === "ArrowUp") sandboxKeys['up'] = true;
+            if (e.key === "ArrowDown") sandboxKeys['down'] = true;
+            if (["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight", " "].includes(e.key)) {
+                e.preventDefault();
+            }
+        });
+
+        canvasElement.addEventListener('keyup', (e) => {
+            let key = e.key.toLowerCase();
+            sandboxKeys[key] = false;
+            sandboxKeys[e.code.toLowerCase()] = false;
+            if (e.key === "ArrowLeft") sandboxKeys['left'] = false;
+            if (e.key === "ArrowRight") sandboxKeys['right'] = false;
+            if (e.key === "ArrowUp") sandboxKeys['up'] = false;
+            if (e.key === "ArrowDown") sandboxKeys['down'] = false;
+        });
+
+        canvasElement.addEventListener('blur', () => {
+            sandboxKeys = {};
+        });
+
+        function runSandbox() {
+            const codeInput = document.getElementById('sandboxInput').value;
+            const canvas = document.getElementById('sandboxCanvas');
+            const ctx = canvas.getContext('2d');
+
+            // Автоматически фокусируемся на холсте при запуске, чтобы стрелочки сразу работали
+            canvas.focus();
+
+            try {
+                let lines = codeInput.split('\n');
+                let width = 600, height = 400;
+                let loopCode = [];
+                let inLoop = false;
+                sandboxObjects = {};
+                sandboxBgColor = "#000000";
+
+                const colorMap = {
+                    "black": "#000000", "white": "#ffffff", "red": "#ff0000",
+                    "green": "#008000", "blue": "#0000ff", "yellow": "#ffff00",
+                    "cyan": "#00ffff", "magenta": "#ff00ff", "gray": "#808080",
+                    "orange": "#ffa500", "purple": "#800080"
+                };
+
+                for (let raw of lines) {
+                    let s = raw.trim();
+                    if (!s || s.startsWith('#')) continue;
+
+                    let screenMatch = s.match(/^screen\((\d+)\s*,\s*(\d+)\)$/);
+                    if (screenMatch) {
+                        width = parseInt(screenMatch[1]);
+                        height = parseInt(screenMatch[2]);
+                        continue;
+                    }
+
+                    let bgMatch = s.match(/^background\s+(\w+)$/) || s.match(/^background\((.*?)\)$/);
+                    if (bgMatch) {
+                        let cName = bgMatch[1].trim();
+                        sandboxBgColor = colorMap[cName] || cName;
+                        continue;
+                    }
+
+                    if (s.startsWith('create ')) {
+                        let createMatch = s.match(/^create\s+(\w+)\s+is\s+(\w+)\s+(rect|circle)\((.*?)\)\s+at\s+(.+)$/);
+                        if (!createMatch) throw new Error("Неверный синтаксис create: " + s);
+                        let name = createMatch[1];
+                        let color = colorMap[createMatch[2]] || createMatch[2];
+                        let kind = createMatch[3];
+                        let sizeStr = createMatch[4];
+                        let posStr = createMatch[5];
+
+                        let posParts = posStr.split(',').map(p => parseFloat(p.trim()));
+                        let size = kind === 'rect' ? sizeStr.split(',').map(p => parseFloat(p.trim())) : parseFloat(sizeStr.trim());
+
+                        sandboxObjects[name] = {
+                            name, kind, color, size, x: posParts[0], y: posParts[1],
+                            move(dx, dy) { this.x += dx; this.y += dy; }
+                        };
+                        continue;
+                    }
+
+                    if (s === 'infinity' || s === 'infinity:') { inLoop = true; continue; }
+                    if (s === 'endinfinity') { inLoop = false; continue; }
+
+                    if (inLoop) {
+                        let moveMatch = s.match(/^(\w+)\.move\(([-\d\.]+),\s*([-\d\.]+)\)$/);
+                        if (moveMatch) {
+                            loopCode.push(`if (sandboxObjects["${moveMatch[1]}"]) sandboxObjects["${moveMatch[1]}"].move(${moveMatch[2]}, ${moveMatch[3]});`);
+                        } else if (s.includes('key_down(K.right)')) {
+                            loopCode.push(`if (sandboxKeys['arrowright'] || sandboxKeys['d'] || sandboxKeys['right']) {`);
+                        } else if (s.includes('key_down(K.left)')) {
+                            loopCode.push(`if (sandboxKeys['arrowleft'] || sandboxKeys['a'] || sandboxKeys['left']) {`);
+                        } else if (s.includes('key_down(K.up)')) {
+                            loopCode.push(`if (sandboxKeys['arrowup'] || sandboxKeys['w'] || sandboxKeys['up']) {`);
+                        } else if (s.includes('key_down(K.down)')) {
+                            loopCode.push(`if (sandboxKeys['arrowdown'] || sandboxKeys['s'] || sandboxKeys['down']) {`);
+                        } else {
+                            loopCode.push(`}`);
+                        }
+                    }
+                }
+
+                canvas.width = width;
+                canvas.height = height;
+
+                if (sandboxAnimId) cancelAnimationFrame(sandboxAnimId);
+
+                function loop() {
+                    try {
+                        let evalFunc = new Function('sandboxObjects', 'sandboxKeys', loopCode.join('\n'));
+                        evalFunc(sandboxObjects, sandboxKeys);
+                    } catch(err) {}
+
+                    ctx.fillStyle = sandboxBgColor;
+                    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+                    for (let k in sandboxObjects) {
+                        let obj = sandboxObjects[k];
+                        ctx.fillStyle = obj.color;
+                        if (obj.kind === 'rect') {
+                            let w = Array.isArray(obj.size) ? obj.size[0] : 40;
+                            let h = Array.isArray(obj.size) ? obj.size[1] : 40;
+                            ctx.fillRect(obj.x, obj.y, w, h);
+                        } else if (obj.kind === 'circle') {
+                            let r = typeof obj.size === 'number' ? obj.size : 20;
+                            ctx.beginPath();
+                            ctx.arc(obj.x, obj.y, r, 0, Math.PI * 2);
+                            ctx.fill();
+                        }
+                    }
+                    sandboxAnimId = requestAnimationFrame(loop);
+                }
+                loop();
+
+            } catch (e) {
+                alert("Ошибка синтаксиса: " + e.message);
+            }
+        }
+
+        setTimeout(runSandbox, 300);
+
+        function downloadParserFile() {
+            const parserCode = `import argparse
+import os
+import re
+
+class ParseError(Exception):
+    pass
+
+COLORS = {
+    "black": "black", "white": "white",
+    "red": "red", "green": "green",
+    "blue": "blue", "yellow": "yellow",
+    "cyan": "cyan", "magenta": "magenta",
+    "gray": "gray", "grey": "gray",
+    "orange": "orange", "purple": "purple",
+}
+
+RUNTIME = r'''
+import tkinter as tk
+
+root = tk.Tk()
+root.title("InceptaScript Game")
+canvas = tk.Canvas(root, width=800, height=600, bg="black")
+canvas.pack(fill="both", expand=True)
+
+root.focus_set()
+
+_pressed_keys = set()
+
+def _on_key_press(event):
+    ks = event.keysym.lower()
+    _pressed_keys.add(ks)
+    if event.char:
+        _pressed_keys.add(event.char.lower())
+    _pressed_keys.add(event.keycode)
+
+def _on_key_release(event):
+    ks = event.keysym.lower()
+    _pressed_keys.discard(ks)
+    if event.char:
+        _pressed_keys.discard(event.char.lower())
+    _pressed_keys.discard(event.keycode)
+
+root.bind("<KeyPress>", _on_key_press)
+root.bind("<KeyRelease>", _on_key_release)
+
+class Keys:
+    left = "left"
+    right = "right"
+    up = "up"
+    down = "down"
+    space = "space"
+    a = "a"
+    d = "d"
+    w = "w"
+    s = "s"
+
+K = Keys()
+_objects = {}
+
+class InceptaObject:
+    def __init__(self, name, kind, color, size, x, y):
+        self.name = name
+        self.kind = kind
+        self.color = color
+        self.size = size
+        self.x = x
+        self.y = y
+
+    def move(self, dx, dy):
+        self.x += dx
+        self.y += dy
+
+    def draw(self, target):
+        if self.kind == "rect":
+            w, h = self.size
+            target.create_rectangle(self.x, self.y, self.x + w, self.y + h, fill=self.color, outline="")
+        elif self.kind == "circle":
+            r = self.size
+            target.create_oval(self.x - r, self.y - r, self.x + r, self.y + r, fill=self.color, outline="")
+
+def remove(obj):
+    if isinstance(obj, str):
+        _objects.pop(obj, None)
+    else:
+        for name, value in list(_objects.items()):
+            if value is obj:
+                del _objects[name]
+
+def background(color_name):
+    c = COLORS.get(color_name.lower(), color_name)
+    canvas.config(bg=c)
+
+def key_down(key):
+    if isinstance(key, str):
+        return key.lower() in _pressed_keys
+    return key in _pressed_keys
+
+def pg(value=None):
+    return value
+
+def draw_all():
+    canvas.delete("all")
+    for obj in list(_objects.values()):
+        obj.draw(canvas)
+'''
+
+def expr(s):
+    s = re.sub(r'\\bkey_down\\((.*?)\\)', r'key_down(\\1)', s)
+    s = re.sub(r'\\bK\\.(\\w+)', r'K.\\1', s)
+    return s
+
+def create_line(s):
+    m = re.fullmatch(r"create\\s+(\\w+)\\s+is\\s+(\\w+)\\s+(rect|circle)\\((.*?)\\)\\s+at\\s+(.+)", s)
+    if not m:
+        raise ParseError(f"Неверный синтаксис create: {s}")
+    name, color_name, kind, size_str, pos_str = m.groups()
+    
+    if color_name not in COLORS:
+        raise ParseError(f"Неизвестный цвет: {color_name}")
+    color = COLORS[color_name]
+    
+    if kind == "rect":
+        parts = [p.strip() for p in size_str.split(",")]
+        if len(parts) != 2:
+            raise ParseError(f"Для rect нужно 2 параметра размера (w, h): {size_str}")
+        size = f"({parts[0]}, {parts[1]})"
+    else:
+        size = size_str.strip()
+        
+    pos_parts = [p.strip() for p in pos_str.split(",")]
+    if len(pos_parts) != 2:
+        raise ParseError(f"Для позиции нужно 2 параметра (x, y): {pos_str}")
+    x, y = pos_parts[0], pos_parts[1]
+    
+    return f'_objects["{name}"] = InceptaObject("{name}", "{kind}", "{color}", {size}, {x}, {y})'
+
+def translate(source):
+    lines = source.splitlines()
+    width, height = 800, 600
+
+    for line in lines:
+        m = re.fullmatch(r"\\s*screen\\((\\d+)\\s*,\\s*(\\d+)\\)\\s*", line)
+        if m:
+            width, height = int(m.group(1)), int(m.group(2))
+            break
+
+    runtime = RUNTIME.replace(
+        "canvas = tk.Canvas(root, width=800, height=600, bg=\\"black\\")",
+        f"canvas = tk.Canvas(root, width={width}, height={height}, bg=\\"black\\")"
+    )
+
+    setup = []
+    object_names = []
+    body = []
+    in_loop = False
+    py_indent = 1
+
+    for raw in lines:
+        s = raw.strip()
+        if not s or s.startswith("#"):
+            continue
+
+        if s.startswith("screen("):
+            continue
+
+        m_bg = re.fullmatch(r"background\\s+(\\w+)", s) or re.fullmatch(r"background\\((.*?)\\)", s)
+        if m_bg:
+            col = (m_bg.group(1) or m_bg.group(2)).strip()
+            if not in_loop:
+                setup.append(f'background("{col}")')
+            else:
+                body.append("    " * py_indent + f'background("{col}")')
+                py_indent = 1
+            continue
+
+        if s.startswith("create "):
+            m_name = re.search(r"create\\s+(\\w+)", s)
+            if m_name:
+                object_names.append(m_name.group(1))
+            setup.append(create_line(s))
+            continue
+
+        if s in ("infinity", "infinity:"):
+            in_loop = True
+            continue
+
+        if s == "endinfinity":
+            in_loop = False
+            py_indent = 1
+            continue
+
+        if not in_loop:
+            if s.startswith("pg("):
+                setup.append(s)
+            else:
+                raise ParseError("Команда вне infinity: " + s)
+            continue
+
+        if s.startswith("if "):
+            py_indent = 1
+            body.append("    " * py_indent + "if " + expr(s[3:].rstrip(":")) + ":")
+            py_indent = 2
+        elif s.startswith("elif "):
+            py_indent = 1
+            body.append("    " * py_indent + "elif " + expr(s[5:].rstrip(":")) + ":")
+            py_indent = 2
+        elif s == "else:" or s == "else":
+            py_indent = 1
+            body.append("    " * py_indent + "else:")
+            py_indent = 2
+        elif re.fullmatch(r"(\\w+)\\.move\\((.*)\\)", s):
+            m_move = re.fullmatch(r"(\\w+)\\.move\\((.*)\\)", s)
+            body.append("    " * py_indent + f'_objects["{m_move.group(1)}"].move({m_move.group(2)})')
+            py_indent = 1
+        elif s.startswith("remove("):
+            body.append("    " * py_indent + s)
+            py_indent = 1
+        elif s.startswith("pg("):
+            body.append("    " * py_indent + s)
+            py_indent = 1
+        else:
+            body.append("    " * py_indent + s)
+            py_indent = 1
+
+    bindings = [f"{name} = _objects['{name}']" for name in object_names]
+
+    result = [runtime, "", *setup, "", *bindings, "", "def game_loop():"]
+    result += body
+    result += [
+        "    draw_all()",
+        "    root.after(16, game_loop)",
+        "",
+        "root.after(16, game_loop)",
+        "root.mainloop()",
+    ]
+    return "\\n".join(result) + "\\n"
+
+def main():
+    parser = argparse.ArgumentParser(description="InceptaScript to Python Transpiler")
+    parser.add_argument("input", help="Path to InceptaScript file")
+    parser.add_argument("-o", "--output", default=r"C:\\Users\\Student\\Desktop\\incepta\\open.py", help="Path to output python file")
+    parser.add_argument("--run", action="store_true", help="Run the generated python script")
+    args = parser.parse_args()
+
+    try:
+        with open(args.input, "r", encoding="utf-8") as f:
+            content = f.read()
+        
+        python_code = translate(content)
+        
+        output_dir = os.path.dirname(os.path.abspath(args.output))
+        os.makedirs(output_dir, exist_ok=True)
+        
+        with open(args.output, "w", encoding="utf-8") as f:
+            f.write(python_code)
+            
+        txt_output = os.path.splitext(args.output)[0] + ".txt"
+        with open(txt_output, "w", encoding="utf-8") as f:
+            f.write(python_code)
+            
+        print(f"Транслятор запущен! Код сохранен в .py и в текст: {txt_output}")
+        
+        if args.run:
+            import subprocess
+            import sys
+            subprocess.run([sys.executable, args.output])
+            
+    except ParseError as e:
+        print(f"InceptaScript error: {e}")
+        sys.exit(1)
+
+if __name__ == "__main__":
+    main()
+`;
+
+            const blob = new Blob([parserCode], { type: 'text/plain;charset=utf-8' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'incepta_parser.py';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        const form = document.getElementById('feedbackForm');
+        const submitBtn = document.getElementById('submitBtn');
+        form.addEventListener('input', () => {
+            if (form.checkValidity()) submitBtn.removeAttribute('disabled');
+        });
+    </script>
+</body>
+</html>
